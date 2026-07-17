@@ -1,0 +1,39 @@
+# AGP Workflow for GA Pricing Testing (GUIDE-2883)
+#
+# IMPORTANT: This workflow uses a self-hosted runner to connect to the dev backend.
+# Before running:
+#   1. Set up a self-hosted runner on a VPN-connected machine
+#   2. Configure repository variables:
+#      - AGP_API_URL: The dev backend URL (accessible from VPN)
+#      - AGP_API_TOKEN: A Guide PAT (store as a SECRET, not variable)
+#
+# See: https://sonatype.atlassian.net/browse/GUIDE-2883
+
+name: Agent P Dependency Analysis
+
+on:
+  workflow_dispatch:
+    # Manual trigger for testing
+  schedule:
+    # Weekly scan (disabled by default for testing)
+    - cron: '0 0 * * 0'
+
+# Prevent overlapping runs
+concurrency:
+  group: agp-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  agp-analysis:
+    runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Agent P Analysis
+        uses: sonatype/agp-action@main
+        with:
+          api-url: ${{ vars.AGP_API_URL }}
+          api-token: ${{ secrets.AGP_API_TOKEN }}
