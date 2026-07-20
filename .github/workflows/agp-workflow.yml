@@ -3,9 +3,10 @@
 # IMPORTANT: This workflow uses a self-hosted runner to connect to the dev backend.
 # Before running:
 #   1. Set up a self-hosted runner on a VPN-connected machine
-#   2. Configure repository variables:
-#      - AGP_API_URL: The dev backend URL (accessible from VPN)
-#      - AGP_API_TOKEN: A Guide PAT (store as a SECRET, not variable)
+#   2. Configure repository secrets:
+#      - AGP_API_TOKEN: A Guide PAT for authentication
+#   3. Configure repository variables:
+#      - AGP_API_URL: The dev backend URL (e.g., https://api.guide-dev.sonatype.dev)
 #
 # See: https://sonatype.atlassian.net/browse/GUIDE-2883
 
@@ -15,7 +16,7 @@ on:
   workflow_dispatch:
     # Manual trigger for testing
   schedule:
-    # Weekly scan (disabled by default for testing)
+    # Weekly scan
     - cron: '0 0 * * 0'
 
 permissions:
@@ -33,13 +34,14 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 30
 
+    # Pass secrets and vars as environment variables to the action
+    env:
+      AGP_API_URL: ${{ vars.AGP_API_URL }}
+      AGP_API_TOKEN: ${{ secrets.AGP_API_TOKEN }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run Agent P Analysis
         uses: sonatype/agp-action@main
-        with:
-          api-url: ${{ vars.AGP_API_URL }}
-          api-token: ${{ secrets.AGP_API_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
