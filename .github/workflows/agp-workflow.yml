@@ -18,6 +18,11 @@ on:
     # Weekly scan (disabled by default for testing)
     - cron: '0 0 * * 0'
 
+permissions:
+  id-token: write    # Required for OIDC authentication with Guide
+  contents: write    # Required for creating PRs
+  pull-requests: write  # Required for creating PRs
+
 # Prevent overlapping runs
 concurrency:
   group: agp-${{ github.repository }}
@@ -37,3 +42,4 @@ jobs:
         with:
           api-url: ${{ vars.AGP_API_URL }}
           api-token: ${{ secrets.AGP_API_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
